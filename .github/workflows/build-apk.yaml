@@ -30,7 +30,10 @@ jobs:
         with:
           channel: stable
 
-      - name: Registry push notification
+      - name: Configure Flutter to use Java 17
+        run: flutter config --jdk-dir="$JAVA_HOME"
+
+      - name: Build start notification
         uses: containrrr/shoutrrr-action@v1
         with:
           url: telegram://${{ secrets.ALERTS_TELEGRAM_HTTP_API_TOKEN }}@telegram/?channels=${{ secrets.ALERTS_CHAT_ID }}
@@ -42,13 +45,9 @@ jobs:
             Commit url: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
             Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-
-      - name: Configure Flutter to use Java 17
-        run: flutter config --jdk-dir="$JAVA_HOME"
-
       - name: Install dependencies
         run: flutter pub get
-
+        
       - name: Build APK
         run: flutter build apk --release
 
