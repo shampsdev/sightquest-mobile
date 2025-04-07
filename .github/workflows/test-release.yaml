@@ -39,4 +39,4 @@ jobs:
           asset_name: example.txt
           asset_content_type: text/plain
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN  }}
