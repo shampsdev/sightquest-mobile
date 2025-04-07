@@ -30,6 +30,19 @@ jobs:
         with:
           channel: stable
 
+      - name: Registry push notification
+        uses: containrrr/shoutrrr-action@v1
+        with:
+          url: telegram://${{ secrets.ALERTS_TELEGRAM_HTTP_API_TOKEN }}@telegram/?channels=${{ secrets.ALERTS_CHAT_ID }}
+          title: "[APK] SightQuest build started"
+          message: |
+            ✅ APK file for commit: ${{ github.sha }} has been successfully built.
+            Release name: ${{ github.repository }}:${{ env.SHORT_SHA }}-${{ env.RUN_NUMBER }}
+        
+            Commit url: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+            Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+
       - name: Configure Flutter to use Java 17
         run: flutter config --jdk-dir="$JAVA_HOME"
 
@@ -46,6 +59,34 @@ jobs:
           RELEASE_TAG="${{ env.SHORT_SHA }}-${{ env.RUN_NUMBER }}"
           gh release create "$RELEASE_TAG" \
             --repo="$GITHUB_REPOSITORY" \
-            --title="${GITHUB_REPOSITORY#*/} ${RELEASE_TAG}" \
+            --title="${GITHUB_REPOSITORY#*/}:${RELEASE_TAG}" \
             --generate-notes \
             build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Notification - success
+        if: ${{ success() }}
+        uses: containrrr/shoutrrr-action@v1
+        with:
+          url: telegram://${{ secrets.ALERTS_TELEGRAM_HTTP_API_TOKEN }}@telegram/?channels=${{ secrets.ALERTS_CHAT_ID }}
+          title: "[APK] SightQuest build finished"
+          message: |
+            ✅ APK file for commit: ${{ github.sha }} has been successfully built.
+            Release name: ${{ github.repository }}:${{ env.SHORT_SHA }}-${{ env.RUN_NUMBER }}
+        
+            Link to commit: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+        
+            APK file available for download: https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_TAG }}/app-release.apk
+        
+      - name: Notification - fail
+        if: ${{ failure() }}
+        uses: containrrr/shoutrrr-action@v1
+        with:
+          url: telegram://${{ secrets.ALERTS_TELEGRAM_HTTP_API_TOKEN }}@telegram/?channels=${{ secrets.ALERTS_CHAT_ID }}
+          title: "[APK] SightQuest build failed"
+          message: |
+            ❌ An error occurred during building for ${{ github.repository }}:${{ env.SHORT_SHA }}-${{ env.RUN_NUMBER }}
+            
+            Link to commit: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+            Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            Check the pipeline logs for details.
