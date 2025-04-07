@@ -74,7 +74,7 @@ jobs:
         
             Link to commit: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
         
-            APK file available for download: https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_TAG }}/app-release.apk
+            APK file available for download: https://github.com/${{ github.repository }}/releases/download/${{ env.SHORT_SHA }}-${{ env.RUN_NUMBER }}/app-release.apk
         
       - name: Notification - fail
         if: ${{ failure() }}
